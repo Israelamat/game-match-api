@@ -29,7 +29,6 @@ A simple content-based game recommendation system for Steam games. Input a game 
 1. Clone the repository environment::
 2. Create a virtual :
 `python -m venv venv`
-`source venv/bin/activate`
 `venv\Scripts\activate`
 3. Install dependencies:
 `pip install -r requirements.txt`
