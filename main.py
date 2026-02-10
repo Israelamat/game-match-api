@@ -4,6 +4,7 @@ import uvicorn
 from utilities.formatter import format_games_dataframe
 from utilities.dataframe_cleanner import clean_dataframe
 from utilities.data_manager import ensure_dataset_exists
+from recommender.recommender import GameRecommender
 
 app = FastAPI()
 
@@ -18,10 +19,13 @@ try:
     df = format_games_dataframe(df_raw)
     df = clean_dataframe(df)
     print("Data formatting and cleaning completed")
+    cleaned_path = "data/games_cleaned.csv"
+    df.to_csv(cleaned_path, index=False)
+    print(f"Data saved in: {cleaned_path}")
 
 except Exception as e:
     df = pd.DataFrame()
-    print(f"Error loading data: {e}")
+    print(f"Error loading/cleaning data: {e}")
 
 # Routes 
 @app.get("/")
@@ -36,6 +40,18 @@ async def games():
     return {
         "total": len(df_native_types)
     }
+
+recommender = GameRecommender(df)
+
+if not recommender.load_model():
+    recommender.fit()
+    recommender.save_model()
+
+# Ruta de la API
+@app.get("/recommend/{game_name}")
+async def get_rec(game_name: str):
+    results = recommender.get_recommendations(game_name)
+    return {"results": results}
 
 # Init app
 if __name__ == "__main__":
