@@ -11,6 +11,7 @@ class GameRecommender:
         Metadata is a combination of text columns for Tf-IDF vectorization.
         """
         self.df = df.reset_index(drop=True)
+        self.df = df.fillna("").reset_index(drop=True)
         
         # Limit the number of features to 5000 for faster processing do not kill the RAM
         self.vectorizer = TfidfVectorizer(
@@ -49,7 +50,9 @@ class GameRecommender:
         :param n: The number of recommendations to return.
         """
         # Get the index of the game
+        game_name = game_name.strip().lower()
         idx_list = self.df.index[self.df['Name'].str.lower() == game_name.lower()].tolist()
+        print(f"Input game {game_name}")
         
         if not idx_list:
             return None
@@ -59,13 +62,19 @@ class GameRecommender:
         cosine_sim = linear_kernel(self.tfidf_matrix[idx], self.tfidf_matrix).flatten()
         related_indices = cosine_sim.argsort()[-(n+1):-1][::-1]
         
+        print(type(related_indices), related_indices)
+        
         # Build the response
         recommendations = []
         for i in related_indices:
+            name = str(self.df.iloc[i]['Name'])
+            app_id = str(self.df.iloc[i]['AppID'])
+            genres = str(self.df.iloc[i]['Genres'])
+            
             recommendations.append({
-                "name": self.df.iloc[i]['Name'],
-                "app_id": str(self.df.iloc[i]['AppID']),
-                "genres": self.df.iloc[i]['Genres'],
+                "name": name if name != "nan" else "Unknown",
+                "app_id": app_id if app_id != "nan" else "0",
+                "genres": genres if genres != "nan" else "None",
                 "similarity": f"{round(cosine_sim[i] * 100, 2)}%"
             })
             

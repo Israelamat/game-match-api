@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def _drop_invalid_name_genres_rows(df: pd.DataFrame) -> pd.DataFrame:
     """Drop rows with null values in 'Name' and 'Genres' columns."""
@@ -35,10 +36,28 @@ def _create_metadata_column(df: pd.DataFrame) -> pd.DataFrame:
     df['metadata'] = df['metadata'].str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
     return df
 
+def _column_has_no_nulls(df: pd.DataFrame, col: str) -> bool:
+    return df[col].notnull().all()
+
+def _check_for_infinity(df: pd.DataFrame) -> bool:
+    numeric_df = df.select_dtypes(include=[np.number])
+    inf_count = np.isinf(numeric_df).values.sum()
+    if inf_count > 0:
+        return True
+    return False
+
+def _verify_api_readiness(df: pd.DataFrame):
+    """Verify that all required columns are present in the DataFrame."""
+    if(_column_has_no_nulls and _check_for_infinity(df)):
+        return True
+    return False
+
 def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Main function to clean and save the DataFrame."""
     df = _drop_invalid_name_genres_rows(df)
     df = _fill_text_nulls(df)
     df = _fill_numeric_nulls(df)
     df = _create_metadata_column(df)
+    df = df.fillna("None")
+    df = df.replace([np.inf, -np.inf], np.nan)
     return df
