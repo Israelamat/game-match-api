@@ -25,15 +25,13 @@ def _fill_numeric_nulls(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def _create_metadata_column(df: pd.DataFrame) -> pd.DataFrame:
-    """Create new column 'metadata' as a combination of text columns for Tf-IDF vectorization."""
     df['metadata'] = (
-    df['Name'].astype(str) + " " + 
-    df['Genres'].astype(str) + " " + 
-    df['Tags'].astype(str) + " " + 
-    df['About the game'].astype(str)
+        (df['Name'].astype(str) + " ") * 2 + 
+        (df['Tags'].astype(str) + " ") * 10 + 
+        df['About the game'].astype(str)
     ).str.lower()
     
-    df['metadata'] = df['metadata'].str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
+    df['metadata'] = df['metadata'].str.replace(r'[^a-zA-Z\s]', ' ', regex=True)
     return df
 
 def _column_has_no_nulls(df: pd.DataFrame, col: str) -> bool:

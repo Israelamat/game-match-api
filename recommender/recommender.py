@@ -14,9 +14,18 @@ class GameRecommender:
         self.df = df.fillna("").reset_index(drop=True)
         
         # Limit the number of features to 5000 for faster processing do not kill the RAM
+        stopwords = [
+            'singleplayer', 'multiplayer', 'coop', 'online', 'steam', 'achievements', 
+            'controller', 'support', 'full', 'cards', 'trading', 'cloud', 'family', 
+            'sharing', 'camera', 'comfort', 'volume', 'controls', 'playable', 'timed', 
+            'input', 'save', 'anytime', 'stereo', 'sound', 'surround', 'remote', 'play', 
+            'phone', 'tablet', 'tv', 'together', 'captions', 'available', 'stats', 
+            'includes', 'editor', 'commentary', 'crossplatform', 'adjustable', 'difficulty'
+        ]
         self.vectorizer = TfidfVectorizer(
-            stop_words='english', 
-            max_features=5000,  
+            stop_words=stopwords, 
+            max_features=50000,  
+            min_df=2,
             ngram_range=(1, 2)  
         )
         self.tfidf_matrix = None
@@ -61,20 +70,21 @@ class GameRecommender:
         idx = idx_list[0]
         cosine_sim = linear_kernel(self.tfidf_matrix[idx], self.tfidf_matrix).flatten()
         related_indices = cosine_sim.argsort()[-(n+1):-1][::-1]
-        
-        print(type(related_indices), related_indices)
-        
+                
         # Build the response
         recommendations = []
         for i in related_indices:
             name = str(self.df.iloc[i]['Name'])
             app_id = str(self.df.iloc[i]['AppID'])
-            genres = str(self.df.iloc[i]['Genres'])
+            tags = str(self.df.iloc[i].get('Tags', 'None'))
+            genres = str(self.df.iloc[i].get('Genres', 'None'))
+            image_url = f"https://cdn.akamai.steamstatic.com/steam/apps/{app_id}/header.jpg" if app_id != "0" else None
             
             recommendations.append({
                 "name": name if name != "nan" else "Unknown",
                 "app_id": app_id if app_id != "nan" else "0",
-                "genres": genres if genres != "nan" else "None",
+                "image": image_url,
+                "genres": genres if "Single-player" not in genres else tags, # Si genres es técnico, usa tags
                 "similarity": f"{round(cosine_sim[i] * 100, 2)}%"
             })
             
