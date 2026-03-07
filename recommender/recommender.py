@@ -52,7 +52,7 @@ class GameRecommender:
             return True
         return False
 
-    def get_recommendations(self, game_name: str, n: int = 5):
+    def get_recommendations(self, game_name: str = "no_game_name", n: int = 5):
         """
         Get recommendations for a specific game.
         :param game_name: The name of the game to get recommendations for.
@@ -60,8 +60,12 @@ class GameRecommender:
         """
         # Get the index of the game
         game_name = game_name.strip().lower()
-        idx_list = self.df.index[self.df['Name'].str.lower() == game_name.lower()].tolist()
-        print(f"Input game {game_name}")
+        if(game_name == "no_game_name"):
+            idx_list = n
+            
+        else:
+            idx_list = self.df.index[self.df['Name'].str.lower() == game_name.lower()].tolist()
+            print(f"Input game {game_name}")
         
         if not idx_list:
             return None
