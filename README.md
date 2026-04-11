@@ -1,36 +1,107 @@
-# Steam Game Recommender API
+# 🎮 Steam Game Recommender API
 
-A simple content-based game recommendation system for Steam games. Input a game name and get 4–5 similar games based on genres, tags, developers, and other attributes.
+Steam Game Recommender is a **content-based recommendation system** built with Python and FastAPI.  
+It analyzes Steam games and returns similar titles based on their attributes such as genres, tags, developers, and publishers.
 
----
-
-## Features
-
-- **CSV Data Cleaning**
-  - Replace `"0 - 0"` release dates with empty strings
-  - Convert numeric fields from strings to integers/floats
-  - Ensure boolean fields (`Windows`, `Mac`, `Linux`) are proper True/False values
-  - Fill missing values with empty strings
-
-- **Content-Based Game Recommendations**
-  - Recommends games based on similarity of genres, tags, developers, publishers, and other attributes
-  - Uses TF-IDF vectorization and cosine similarity
-
-- **FastAPI Integration**
-  - Query with a game name to get similar games as JSON
-
-- **Pickle Support**
-  - Pre-saved vectorizer and cleaned DataFrame for faster API startup
+The system uses **TF-IDF vectorization** combined with **cosine similarity** to generate meaningful recommendations.
 
 ---
 
-## Installation
+## 🚀 Features
 
-1. Clone the repository environment::
-2. Create a virtual :
-`python -m venv venv`
-`venv\Scripts\activate`
-3. Install dependencies:
-`pip install -r requirements.txt`
-   
+- 📊 Data preprocessing and cleaning of Steam dataset
+- 🧹 Handling missing and inconsistent values
+  - Normalization of release dates
+  - Conversion of numeric fields (int/float)
+  - Boolean standardization (Windows / Mac / Linux support)
+  - Missing value handling
+- 🎮 Content-based recommendation engine
+  - Uses game metadata (genres, tags, developers, publishers)
+  - Finds similarity between games
+- 🧠 TF-IDF vectorization for feature extraction
+- 📐 Cosine similarity for recommendation ranking
+- ⚡ FastAPI REST API for real-time queries
+- 💾 Pickle-based model persistence for faster startup
 
+---
+
+## 📦 Installation
+
+Clone the repository:
+
+git clone <repo-url>
+
+Create virtual environment:
+
+python -m venv venv
+
+Activate environment:
+
+Windows:
+venv\Scripts\activate
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+---
+
+## ▶️ Run the API
+
+Start the FastAPI server:
+
+uvicorn main:app --reload
+
+Then open:
+
+http://127.0.0.1:8000/docs
+
+---
+
+## 🧠 How Recommendations Work (TF-IDF)
+
+The system converts game metadata into numerical vectors using **TF-IDF (Term Frequency - Inverse Document Frequency)**.
+
+### 📌 TF-IDF Formula
+
+TF-IDF is calculated as:
+
+TF-IDF(t, d) = TF(t, d) × log(N / DF(t))
+
+Where:
+
+- TF(t, d) = frequency of term *t* in document *d*
+- DF(t) = number of documents containing term *t*
+- N = total number of documents
+
+---
+
+### 📊 Intuition
+
+- Words that appear frequently in a game description are important (TF)
+- Words that appear in many games are less useful (DF penalty)
+- Final score highlights **unique and relevant features per game**
+
+---
+
+### 🎯 Recommendation Process
+
+1. Each game is transformed into a TF-IDF vector
+2. Cosine similarity is computed between vectors
+
+Cosine similarity:
+
+similarity = (A · B) / (||A|| × ||B||)
+
+:contentReference[oaicite:0]{index=0}
+
+3. Games with highest similarity scores are returned
+
+---
+
+## 📈 Output
+
+The API returns a JSON list of the most similar games:
+
+- Game title
+- Similarity score
