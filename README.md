@@ -29,29 +29,33 @@ The system uses **TF-IDF vectorization** combined with **cosine similarity** to 
 
 Clone the repository:
 
+````Bash
 git clone <repo-url>
-
+````
 Create virtual environment:
 
-python -m venv venv
 
+````Bash
+python -m venv venv
+````
 Activate environment:
 
 Windows:
+````Bash
 venv\Scripts\activate
-
+````
 Install dependencies:
-
+````Bash
 pip install -r requirements.txt
-
+````
 ---
 
 ## ▶️ Run the API
 
 Start the FastAPI server:
-
+````Bash
 uvicorn main:app --reload
-
+````
 Then open:
 
 http://127.0.0.1:8000/docs
@@ -66,7 +70,7 @@ The system converts game metadata into numerical vectors using **TF-IDF (Term Fr
 
 TF-IDF is calculated as:
 
-TF-IDF(t, d) = TF(t, d) × log(N / DF(t))
+![TF-IDF and Cosine Similarity](img/TF-IDF%20and%20cosine%20similarity.png)
 
 Where:
 
