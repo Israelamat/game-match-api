@@ -1,71 +1,87 @@
-# 🎮 GameHub API: High-Performance Gaming & E-Learning Engine
+# 🎮 Steam Game Recommender API
 
-**GameHub API** is a robust, production-ready RESTful service designed to power a dual-purpose ecosystem: a high-traffic video game marketplace and a comprehensive educational training platform. Built with **Symfony 7** and **PHP 8.2**, it follows strict **SOLID** principles and a modern **API-First** approach.
+Steam Game Recommender is a **content-based recommendation system** built with Python and FastAPI.  
+It analyzes Steam games and returns similar titles based on their attributes such as genres, tags, developers, and publishers.
+
+The system uses **TF-IDF vectorization** combined with **cosine similarity** to generate meaningful recommendations.
+
+---
+## ⚡ Automated Lifecycle & Pipeline
+
+The core of this project is its **self-configuring pipeline**. Upon startup, the system detects the environment and executes the following flow:
+
+1. **Auto-Data Acquisition**: If the `.csv` or `.pkl` files are missing, the system automatically fetches the raw dataset.
+2. **Preprocessing & Cleaning**: 
+   - Normalizes release dates and standardizes boolean platforms (Win/Mac/Linux).
+   - Handles missing values and inconsistent numeric types.
+3. **Model Training**: 
+   - Vectorizes metadata using **TF-IDF**.
+   - Computes the **Cosine Similarity** matrix.
+4. **Persistence (Pickle)**: Saves the trained model to `.pkl` for near-instant API startup in subsequent runs.
+5. **Database Export (ETL)**: Uses **SQLAlchemy** to dump the cleaned, processed data into a **MySQL** database (XAMPP/phpMyAdmin), making it available for external queries or reporting.
+---
+
+## 🚀 Features
+
+- 📊 Data preprocessing and cleaning of Steam dataset
+- 🧹 Handling missing and inconsistent values
+  - Normalization of release dates
+  - Conversion of numeric fields (int/float)
+  - Boolean standardization (Windows / Mac / Linux support)
+  - Missing value handling
+- 🎮 Content-based recommendation engine
+  - Uses game metadata (genres, tags, developers, publishers)
+  - Finds similarity between games
+- 🧠 TF-IDF vectorization for feature extraction
+- 📐 Cosine similarity for recommendation ranking
+- ⚡ FastAPI REST API for real-time queries
+- 💾 Pickle-based model persistence for faster startup
+---
+
+## 🧠 How Recommendations Work (TF-IDF)
+
+The system converts game metadata into numerical vectors using **TF-IDF (Term Frequency - Inverse Document Frequency)**.
+
+### 📌 TF-IDF Formula
+
+TF-IDF is calculated as:
+
+![TF-IDF and Cosine Similarity](img/TF-IDF%20and%20cosine%20similarity.png)
+
+Where:
+
+- TF(t, d) = frequency of term *t* in document *d*
+- DF(t) = number of documents containing term *t*
+- N = total number of documents
 
 ---
 
-## 🏗️ Technical Architecture
+### 📊 Intuition
 
-This API is architected for total separation of concerns, ensuring scalability and clean data flow:
-
-* **Pure REST Service:** Optimized for JSON-only communication, eliminating server-side rendering for maximum frontend flexibility.
-* **Complex Data Modeling:** Advanced relational architecture using **Doctrine ORM** to manage users, sales, and community feedback.
-* **Microservices Integration:** Dedicated bridge to an external **AI Recommendation Engine** based on **TF-IDF (NLP)**.
+- Words that appear frequently in a game description are important (TF)
+- Words that appear in many games are less useful (DF penalty)
+- Final score highlights **unique and relevant features per game**
 
 ---
 
-## 🛠️ Tech Stack & Methodology
+### 🎯 Recommendation Process
 
-| Component | Technology | Role |
-| :--- | :--- | :--- |
-| **Backend** | **Symfony 7** | Core Framework & Dependency Injection. |
-| **Language** | **PHP 8.2+** | Attributes, Typed Properties, and Enums. |
-| **ORM** | **Doctrine** | Mapping entities (`User`, `Order`, `Review`, etc.) with migrations. |
-| **AI Integration** | **TF-IDF Engine** | Connection with external Python/ML recommendation API. |
+1. Each game is transformed into a TF-IDF vector
+2. Cosine similarity is computed between vectors
 
----
+Cosine similarity:
 
-## 🚦 Strategic Endpoints (Full CRUD Support)
+similarity = (A · B) / (||A|| × ||B||)
 
+:contentReference[oaicite:0]{index=0}
 
-## 🧠 AI Recommendation Logic (TF-IDF)
-The `/game/recommend` endpoint acts as a client for a specialized recommendation service. It processes game metadata using **Term Frequency-Inverse Document Frequency (TF-IDF)** to calculate text similarity, providing personalized content discovery.
+3. Games with highest similarity scores are returned
 
 ---
 
-### 📦 Marketplace Hub (`/game`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/game` | Catalog retrieval & broad discovery. |
-| **POST** | `/game/new` | Ingest new titles into the ecosystem. |
-| **GET** | `/game/recommend` | **Smart Discovery:** AI-driven suggestions (TF-IDF). |
-| **PUT** | `/game/{id}/edit` | Precise resource updates. |
-| **DELETE** | `/game/{id}` | Controlled resource removal. |
+## 📈 Output
 
-### 🎓 Training Center (`/course`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/course` | Educational program listings. |
-| **POST** | `/course/new` | Course creation and content deployment. |
-| **PUT** | `/course/{id}/edit` | Curriculum modification. |
+The API returns a JSON list of the most similar games:
 
-### 🛒 Sales & Orders (`/order`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/order` | Transaction history logs. |
-| **POST** | `/order/new` | Process new purchase/enrollment. |
-| **GET** | `/order/{id}` | Specific transaction details. |
-
-### 👤 User Management (`/user`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/user` | User directory (Admin only). |
-| **PUT** | `/user/{id}/edit` | Profile updates and account management. |
-
-### ⭐ Community Reviews (`/review`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| **GET** | `/review` | List all feedback and ratings. |
-| **POST** | `/review/new` | Submit new user evaluation. |
-| **DELETE** | `/review/{id}` | Moderation: Remove inappropriate content. |
----
+- Game title
+- Similarity score
