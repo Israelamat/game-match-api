@@ -6,6 +6,20 @@ It analyzes Steam games and returns similar titles based on their attributes suc
 The system uses **TF-IDF vectorization** combined with **cosine similarity** to generate meaningful recommendations.
 
 ---
+## ⚡ Automated Lifecycle & Pipeline
+
+The core of this project is its **self-configuring pipeline**. Upon startup, the system detects the environment and executes the following flow:
+
+1. **Auto-Data Acquisition**: If the `.csv` or `.pkl` files are missing, the system automatically fetches the raw dataset.
+2. **Preprocessing & Cleaning**: 
+   - Normalizes release dates and standardizes boolean platforms (Win/Mac/Linux).
+   - Handles missing values and inconsistent numeric types.
+3. **Model Training**: 
+   - Vectorizes metadata using **TF-IDF**.
+   - Computes the **Cosine Similarity** matrix.
+4. **Persistence (Pickle)**: Saves the trained model to `.pkl` for near-instant API startup in subsequent runs.
+5. **Database Export (ETL)**: Uses **SQLAlchemy** to dump the cleaned, processed data into a **MySQL** database (XAMPP/phpMyAdmin), making it available for external queries or reporting.
+---
 
 ## 🚀 Features
 
@@ -22,44 +36,6 @@ The system uses **TF-IDF vectorization** combined with **cosine similarity** to 
 - 📐 Cosine similarity for recommendation ranking
 - ⚡ FastAPI REST API for real-time queries
 - 💾 Pickle-based model persistence for faster startup
-
----
-
-## 📦 Installation
-
-Clone the repository:
-
-````Bash
-git clone <repo-url>
-````
-Create virtual environment:
-
-
-````Bash
-python -m venv venv
-````
-Activate environment:
-
-Windows:
-````Bash
-venv\Scripts\activate
-````
-Install dependencies:
-````Bash
-pip install -r requirements.txt
-````
----
-
-## ▶️ Run the API
-
-Start the FastAPI server:
-````Bash
-uvicorn main:app --reload
-````
-Then open:
-
-http://127.0.0.1:8000/docs
-
 ---
 
 ## 🧠 How Recommendations Work (TF-IDF)
